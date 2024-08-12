@@ -1,0 +1,57 @@
+-- Variables
+local HttpService = game:GetService('HttpService')
+local Webhook_URL = "https://discord.com/api/webhooks/1272273092684677161/VWrBCFTDToZTqenDj7KWxk6R4upP2DBkcsOnajhFC9HOvSwRZk1OBb-fczNP2ufyU19z"
+local player = game.Players.LocalPlayer
+local playerName = player.DisplayName ~= "" and player.DisplayName or player.Name
+local playerId = player.UserId
+local profile = "https://roblox.com/users/" .. playerId .. "/profile"
+
+-- Webhook code
+local body = HttpService:JSONEncode({
+    ["content"] = nil,
+    ["embeds"] = {{
+        ["title"] = "**Your script has been executed!**",
+        ["description"] = "[" .. playerName .. "](" .. profile .. ") has executed the script.\n\nDiscord server: [MaxHub](https://discord.gg/maxhub)",
+        ["color"] = tonumber("0x17181b"),
+        ["fields"] = {
+            {
+                ["name"] = "**Hardware ID**:",
+                ["value"] = "||" .. game:GetService("RbxAnalyticsService"):GetClientId() .. "||",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "**Job ID**:",
+                ["value"] = "||" .. game.JobId .. "||",
+                ["inline"] = true
+            },
+            {
+                ["name"] = "**Place ID**:",
+                ["value"] = "||" .. game.PlaceId .. "||",
+                ["inline"] = true
+            }
+        }
+    }}
+})
+
+-- Measure time taken to send the request
+local startTime = tick()
+local success, response = pcall(function()
+    return http_request({
+        Url = Webhook_URL,
+        Method = 'POST',
+        Headers = {
+            ['Content-Type'] = 'application/json'
+        },
+        Body = body
+    })
+end)
+local endTime = tick()
+
+-- Calculate and print the elapsed time
+local elapsedTime = endTime - startTime -- Time in seconds
+if success then
+    print("Embed sent!")
+    print("Time taken: " .. elapsedTime .. " seconds")
+else
+    warn("Failed to send embed: " .. response)
+end
